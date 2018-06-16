@@ -1,6 +1,7 @@
 # Git
 
 ## What Git?
+
 > 代码版本控制系统
 
 专家盲点：expert blind spot
@@ -25,26 +26,35 @@
 
 ## 文件三种状态
 
-- modified 	已修改
-- staged 	已暂存
-- commited 	已提交
+- modified 已修改
+- staged 已暂存
+- commited 已提交
+
+## git config 配置
+
+--global 用户全局配置(用户级别)
+
+--system 用户系统配置
+
+--local 用户资源配置文件
 
 ## 基本步骤
 
-- git add 资源
-- git commit -m "添加描述"
-- git status
+``` git
+$ git add 资源
+$ git commit -m "添加描述"
+$ git status
   - new file
   - modified: 资源
     - git checkout -- 资源 (会恢复到修改前)
-- git log 查看历史提交记录，按最近顺序
-- git reset
+$ git log 查看历史提交记录，按最近顺序
+$ git reset
   - repository -> stage
 
 - add <-> checkout
 - commit <-> reset
 
-- git reset HEAD~
+$ git reset HEAD~
   - ~ 标识上一个版本
   - 指针移动到之前版本
   - git status
@@ -58,13 +68,14 @@
     - 将暂存区的文件还原到工作目录
 
   - git reset --mixed, 默认
-   - 将快照回滚到暂存区域
+    - 将快照回滚到暂存区域
 
 - 回滚个别文件
   - git reset 版本快照 文件名/路径
 
 - 不仅可以往回滚，还可以往前滚
   - git reset 版本快照的ID号
+```
 
 ## git diff
 
@@ -90,7 +101,7 @@
 ### 比较暂存区与和 git 仓库快照
 
 - git diff --cached commit_id
-- git diff --cached 最新的 仓库快照
+- git diff --cached 最新的仓库快照
 
 ## 修改最后一次提交
 
@@ -130,7 +141,7 @@ $ vim test.py
 $ git status
 $ git rm test.py 失败
 $ git rm -f test.py 暂存区与工作目录同时删除
-$ git rm --cacached test.py 仅删除暂存区域的文件
+$ git rm --cached test.py 仅删除暂存区域的文件
 $ git status
 ```
 
