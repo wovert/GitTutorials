@@ -1,8 +1,12 @@
 # Git
 
-## What Git?
+## What is Git
 
-> 代码版本控制系统
+> 分布式代码版本控制系统
+
+- 本地版本控制系统
+- 集中化版本控制系统
+- 分布式版本控制系统
 
 专家盲点：expert blind spot
 对一个事务知道的越多，就越发不记得不知道这个事的情形
@@ -11,18 +15,57 @@
 
 - BitKeeper 商业公司
 - BitMover
+- CVS -> SVN
 
-## git 配置
+## git config
 
-- git config --global user.name "lingyima"
-- git confnig --global user.email "67668283@qq.com"
-- git confnig --list
+``` git
+$ git config --global user.name "lingyima"
+$ git config --global user.email "67668283@qq.com"
+$ git config --list
+```
+
+版本控制，工作目录状态的快照，记录文件的完整内容。文件内容没有变化，创建新文件使用其原文见文件的快照，文件有变化，创建新文件并引用此文件。仅保存文件内容。
+
+文件保存在仓库中，以独立自主的对象保存，包括元数据和数据。版本库以文件内容的hash值来命名库的文件名。
+
+一个文件在库当中有n 个文件对象。获取文件的hash 值来获取内容
+
+只追踪文件内容。不同目录当中相同内容的文件，在版本库中只保留一个文件对象。
 
 ## 区域
 
-- working Directory
-- State(Index)
-- Repository(HEAD)
+- 工作目录：working Directory
+  - 工作区：working Area
+  - .git 目录 版本库
+    - 暂存区: State Area(Index)
+    - 版本库：Repository(HEAD)
+
+``` git
+// 创建项目目录并进入项目目录
+$ mkdir mypro && cd mypro
+
+// 1. 在工作区创建文件或目录（多个矩形图形）
+$ touch a.txt b.txt
+
+// 2. 暂存区记录快照（一个三角形）
+// 3. 在对象库中生成两个文件对象（两个圆形对象）并被上述2索引引用
+$ git add a.txt b.txt
+
+- 索引快照文件
+  - a.txt 09fa
+  - b.txt 075f
+
+// 4. 索引快照文件复制到对象库中并继续引用指向两个对象文件，三角形索引文件是树对象，父亲是当前节点分支
+$ git commit -m "add two files"
+
+对象库的索引的文件和暂存区的索引文件都指向两个文件对象
+
+
+
+
+```
+
 
 ## 文件三种状态
 
@@ -640,4 +683,3 @@ $ git checkout . 当前目录所有文件恢复
 $ git checkout -- file 单个文件恢复
 
 $ git checkout dir/ 目录文件下所有文件恢复
-
