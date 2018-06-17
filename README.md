@@ -19,10 +19,125 @@
 
 ## git config
 
+- 仓库特有：REPO/.git/config
+- 全局：~/.gitconfig, --global
+- 系统：/etc/git/gitconfig, --system
+
+- Git 仓库
+  - 索引：暂存
+  - 对象库：版本库
+
+## git 对象类型
+
+- 块(blob)对象：文件的每个版本表现为一个块
+- 树(tree)对象: 一个目录代表一层目录信息
+- 提交(commit)对象：用于保存版本库一次变化的数据，包括作者、邮箱、提交日期、日志消息等
+- 标签(tag)对象：给特定对象一个易读的名称
+
+对象库：内容寻址系统
+
+打包文件：pack file (不同版本的文件进行打包)
+
+多个相同文件会打包成一个文件
+
 ``` git
+$ cd pro && git init
+$ vim README
+  ## this is README file
+$ git add README
+$ tree .git
+
+objects
+  6e
+    b09131ca6318e ...
+
+
+// 索引文件内容
+$ git ls-files --full-name
+
+// 查看对象内容
+$ git cat-file -p 6eb0
+   ## this is README file
+
+// 对象名和源文件名
+$ git ls-files -s
+  100644 6eb09131..  README
+
+$ ls
+  README
+
+$ mkdir subdir
+$ vim subdir/1.txt
+$ git add .
+$ git ls-files -s
+
+$ git commit -m "v0.0.1"
+$ tree .git/
+
+$ man git-cat-file
+
+// 查看对象类型
+$ git cat-file -t 61117
+  tree
+  blob
+  commit
+
+提交对象 -> 树对象 -> 块对象，子树对象 -> 块对象
+
+```
+
+`git ls-files`: 列出文件
+
+`git cat-file`: 查看文件内容
+
+`git hash-object README`: 计算文件的hash码；
+6eb0913..... 前两个 63 作为目录名
+
+`$ git write-tree`: 根据当前索引中的内容创建树对象; 
+
+``` shell
+目录结构
+dir
+ a.txt
+ d
+   1.txt
+   b.txt
+$ git write-tree
+  xxxxxxxx 树对象文件
+$ git cat-file -p xxxxx 显示树对象索引映射文件目录
+```
+
+``` git
+$ man git-config
+$ git config -l
+
 $ git config --global user.name "lingyima"
 $ git config --global user.email "67668283@qq.com"
 $ git config --list
+$ cat ~/.gitconfig
+[user]
+  name = lingyima
+  email = 67668283@qq.com
+
+$ cat .git/config
+[core]
+  repositoryformatversion=0
+  filename = true
+  bare = false
+  logallrefupdates = true
+
+$ cd .git/objects
+分层管理
+14
+9a
+cd
+info
+pack
+
+$ tree .
+文件对象
+提交对象
+树对象
 ```
 
 版本控制，工作目录状态的快照，记录文件的完整内容。文件内容没有变化，创建新文件使用其原文见文件的快照，文件有变化，创建新文件并引用此文件。仅保存文件内容。
@@ -61,11 +176,7 @@ $ git commit -m "add two files"
 
 对象库的索引的文件和暂存区的索引文件都指向两个文件对象
 
-
-
-
 ```
-
 
 ## 文件三种状态
 
@@ -73,18 +184,85 @@ $ git commit -m "add two files"
 - staged 已暂存
 - commited 已提交
 
-## git config 配置
+## .git 目录结构
 
---global 用户全局配置(用户级别)
+- branches 分支
+- config 当前版本库的配置
+  - --system 用户系统配置
+  - --global 用户全局配置(用户级别)
+  - --local 用户资源配置文件
+- description
+- HEAD
+- hooks
+- info
+- objects 对象库
+- refs
+  - heads
+  - tags
 
---system 用户系统配置
+## git 文件分类
 
---local 用户资源配置文件
+- 已追踪的(tracked): 已经在版本库中，或者已经使用 git add 命令添加至索引中的文件
+- 被忽略的(Ignored): 在版本库中通过"忽略文件列表"明确声明为被忽略的文件；
+- 未追踪的(untracked): 上述两类之外的其他文件
+
+### add/rm/mv 命令：
+
+git add: 暂存文件 （索引快照文件及对象库的文件对象）
+
+`git ls-files` 默认显示索引中的文件列表的原始文件名
+
+`git ls-files -s` 显示暂存区的文件信息（权限、对象名、暂存号、文件路径）
+
+`git ls-files -o` 显示所有未被追踪的文件
+
+### 创建忽略文件
+
+``` git
+$ vim .gitignore
+  1.txt
+  dir/
+  *.jpg
+```
+
+### 删除文件
+
+`$ git rm pam.d/login`
+工作目录的文件和索引文件的影身都删除 （不包括仓库中的对象文件）
+
+`$ git rm --cached pam.d/setup` 仅删除索引中的映射
+
+`$ git ls-files | grep setup`
+
+`$ ls pam.d | grep setup`
+
+`$ git status`
+
+### 移动文件
+
+1. 移动本地工作目录文件
+2. 删除索引文件文件路径映射
+3. 索引文件新文件路径映射
+
+``` git
+file: pam.d/chfn
+
+$ mv pamd.d/{chfn, chfn.new}
+$ git status
+$ git ls-files
+$ git add .
+
+$ git mv 
+```
+
+`$ git mv`: 改变目录中的文件名并索引中的映射
+
 
 ## 基本步骤
 
 ``` git
-$ git add 资源
+$ man git
+$ git add 资源 or git add .
 $ git commit -m "添加描述"
 $ git status
   new file
