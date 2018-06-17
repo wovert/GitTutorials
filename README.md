@@ -596,3 +596,48 @@ reset 命令将 head 指向的分支以及 head 本身都切换到了feature 分
 
 checkout 只切换 head 指针
 
+## git 对象
+
+``` git
+$ git log --pretty=raw --graph commit_id
+* commit XXXXXX
+  tree xxxxxx
+  parent xxxxxx
+  author name <name@email.com>
+  Committer name <name@email.com>
+```
+
+## reset
+
+修改一个文件内容（没有 git add,已被提交过），想撤销修改
+git checkout -- file.txt or /src/
+
+修改一个文件内容（git add已在暂存区）,撤销到没有暂存区的状态
+git reset a.txt
+
+修改几个文件，但是想撤销到某个版本，但是当前暂存区，工作区不想撤销
+git reset --soft commit_id
+
+修改几个文件也提交暂存区，想撤销到某个 commit(确定都不要了)其实还可以找回
+git reset --hard commit_id
+
+恢复
+
+$ git reflog
+
+$ git reflog show master
+
+$ git reset --hard master@{1} 强制恢复到 master 主分支的 commit_id（会丢失commit_id分支下暂存的内容）
+
+## git checkout
+
+$ git merge commit_id
+
+$ git cat-file -p HEAD 改变历史
+
+$ git checkout . 当前目录所有文件恢复
+
+$ git checkout -- file 单个文件恢复
+
+$ git checkout dir/ 目录文件下所有文件恢复
+
