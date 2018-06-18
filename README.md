@@ -454,6 +454,22 @@ $ git log --graph --pretty=oneline --abbrev-commit
 
 ```
 
+## git 远程
+
+基于网络协议：http, https, ssh, git
+
+### 克隆操作：git clone
+
+原始版本所存储在 refs/heads 
+
+远程跟踪分支 refs/remotes/orign/master
+
+``` .gitconfig
+~/REPO/.gitconfig
+[remote "分支名"]
+
+```
+
 ## 基本步骤
 
 ``` git
