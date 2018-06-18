@@ -257,6 +257,109 @@ $ git mv
 
 `$ git mv`: 改变目录中的文件名并索引中的映射
 
+## git 提交
+
+快照索引文件和对象文件存放在对象库当中
+
+``` git
+
+// 提交
+$ git commit -m "message"
+
+// 查看提交日志
+$ git log
+  commit 哈希码
+  Author: NAME <EMAIL>
+  Date: Thu Jun 16 10:44:07 2016 +0800
+
+// 查看对象类型
+$ git cat-file -t 哈希码
+  commit
+
+// 查看对象内容
+$ git cat-file -p 哈希码
+  tree 哈希码   (提交引用的树对象)
+  author NAME <EMAIL> 1466045047 +0800
+  commiter NAME <EMAIL> 1466045047 +0800
+
+  v0.0.1
+
+// 比较对象
+$ git diff
+```
+
+### 提交的标识: ID
+
+- 支持引用：ID, reference, SHA1的值，绝对提交名
+- 符号引用；symbolic reference, symref, 间接引用
+  - 本地特性分支名称、远程跟踪分支名称、标签名；
+  - 名称：REF(分支名)
+    - refs/heads/REF： 本地特性分支名称,默认是 master 分支
+    - refs/remote/REF: 远程跟踪分支名称
+    - refs/tags/REF: 标签名
+  - git 自动维护几个特定的特殊符号引用; ./git/HEAD
+    - HEAD: 始终指向当前分支的最近提交，或检出到其他分支时，目标分支的最近提交
+    - ORIG_HEAD: 合并分支操作时，新生成的提交之前的提交保存于此引用中
+    - FETCH_HEAD: 远程分支
+    - MERGE_HEAD: 合并分支操作时，其他分支的上一次提交；
+  
+- 相对提交名
+  - `^`:同一带父提交
+    - c5^1|c5^ => c4
+    - c5^2 => c2-d
+  - `~`: 同一个分支的父提交
+    - c5~1|c5~ => c4, c5~2 => c3
+
+### git diff
+
+- 索引与工作目录：`git diff`
+- 工作目录与HEAD(最近一次提交): `git diff HEAD`
+- 索引与HEAD: `git diff --cached`
+- c2 与 c4: `git diff c2 c4`
+
+```git
+$ git diff FILE
+diff --git a/FILE b/FILE： a/FILE 工作目录, b/FILE 索引文件
+--- a/FILE 老文件(索引文件)
++++ b/FILE 新文件()
+@@ -1 +1,2 @@ 老文件第一行与新文件第一行与第二行
+this is a file 老文件和新文件相同部分的上下文
++ first line  新文件多了这行文字
+取消差异：$ git add FILE
+
+$ git diff --cache
+--- HEAD 文件
+++++ 索引文件
+取消差异：$ git commit -m "cancle diff"
+
+$ git diff HEAD
+----
+++++
+取消差异：$ git add && git commit
+
+$ git diff c1 c2
+---- c1
+++++ c2
+
+
+$ git diff --color c1 c2 颜色着色显示
+
+```
+
+### git reset
+
+> 撤销此前的操作，会丢失数据
+
+- --soft: 将 HEAD 引用指向给定的提交，但不影响索引和工作目录
+- --mixed: 将 HEAD 引用指向给定的提交，并将索引内容改变为指定提交的快照；但不改变工作目录
+- --hard: 将 HEAD 引用指向给定的提交，将索引内容改变为指定提交的快照，并改变工作目录中的内容反应指定提交的内容
+
+- head 指向 c4(c5废了): $ git reset --soft
+- head 指向 c4并c4索引覆盖当前索引(c5废了): $ git reset --mixed
+- head 指向 c4并c4索引覆盖当前索引,且c4覆盖工作目录(c5废了): $ git reset --hard
+
+// 还原最近一次提交的索引
+$ git reset --mixed HEAD
 
 ## 基本步骤
 
