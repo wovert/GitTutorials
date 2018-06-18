@@ -361,6 +361,99 @@ $ git diff --color c1 c2 颜色着色显示
 // 还原最近一次提交的索引
 $ git reset --mixed HEAD
 
+## git 分支
+
+默认分支 master
+
+HEAD(当前工作目录) 指向一个活动分支的最近一次提交
+
+### 分支命名法则
+
+- 可以使用/，但不能以/结尾
+- 不能以 - 开头
+- 以位于 / 后面的组件，不能以 . 开头
+- 不能使用连续的点好(...)
+- 不能使用空白字符
+- 不能使用^,-,?,*, [ 等
+
+分支名必须唯一；分支名字的名字始终指向目标分支的最近一次提交
+
+### 创建分支
+
+> 先有提交然后可以创建分支
+
+`$ man git-branch`
+
+查看所有分支：`$ git branch --list`
+
+创建分支：`$ git branch 分支名 [START_COMMIT]`
+
+`$ git branch bug/first`
+
+查看分支的详情：`$ git show-branch [分支名]`
+
+切换分支（检出分支）：`$ git checkout 分支名`
+
+创建分支并切换分支：`$ git checkout -b 分支名`
+
+### 分支合并
+
+合并基础：要合并的分支的最近一次的共同分支；
+
+我们的版本:当前分支的最近一次提交
+
+它们的版本：要合并进来的分支的最近一次提交
+
+合并版本=合并基础+我们的版本+他们的版本
+
+合并分支命令：`$ git merge dev` 会生成新的提交
+
+#### 无冲突合并
+
+``` git
+$ git checkout master
+$ git status
+$ git merge BRANCH_NAME
+$ git log --graph --pretty=oneline --abbre-commit
+```
+
+#### 有冲突合并
+
+`$ git ls-files --unmerged` 索引文件中没有合并成功的文件列表
+
+- 1: 基础版本
+- 2: 我们的版本
+- 3: 他们的版本
+
+三方合并标记:
+``` git
+$ git diff
+++<<<<<<< HEAD
+  +echo "forth line"
+++=======
+  +echo "new line"
+++>>>>>>> hotfix
+手动解决合并冲突
+
+$ git add
+$ git commit
+$ git log --graph --pretty=oneline --abbre-commit
+```
+
+合并完成之后，放弃合并：`$ git reset --hard ORIG_HEAD`
+
+### 变基操作
+
+dev 分支的变基
+```
+$ git checkout dev
+$ git rebase master 以master的最近一次提交作为基础版本
+$ git checkout master
+$ git merge dev 快进式合并
+$ git log --graph --pretty=oneline --abbrev-commit
+
+```
+
 ## 基本步骤
 
 ``` git
