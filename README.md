@@ -460,15 +460,284 @@ $ git log --graph --pretty=oneline --abbrev-commit
 
 ### 克隆操作：git clone
 
-原始版本所存储在 refs/heads 
+- 原始版本库存储在在 `refs/heads/` head/存储的本地分支
 
-远程跟踪分支 refs/remotes/orign/master
+- 克隆操作时: 远程跟踪分支(远程与本地映射关系库) `refs/remotes/orign/master`
 
 ``` .gitconfig
-~/REPO/.gitconfig
+
+$ vim ~/REPO/.gitconfig 远程配置
+
+; 远程分支名
 [remote "分支名"]
 
 ```
+
+1. 某种协议远程服务器仓库
+2. 克隆远程分支库到本地库
+3. 远程分支与本地分支关联关系
+
+### git 服务器
+
+协议：本地协议(local), HTTP/HTTPS协议、SSH协议、GIT协议
+
+- 本地协议：
+  - URL： /path/to/repo.git
+  - URL: file:///path/to/repo.git
+
+``` 本地远程仓库
+$ git clone file:///root/test /tmp/testpro
+
+$ cd /tmp/testpro
+$ cd .git
+$ tree refs/
+refs/
+  heads
+    master 克隆了远程 master 分支到本地分支
+  remotes
+    origin 远程跟踪分支
+      HEAD
+  tags
+
+$ tree /root/test/.git/refs/
+  heads
+    bug
+      first
+    dev
+    hotfix
+    master
+  tags
+```
+
+- git 协议 ：由 git-daemon 程序提供，监听在 tcp 的 9418 端口; 仅支持读操作，无任何认证功能；
+  - URL: git://host/path/to/repo.git
+  - URO: git://host/~user/path/to/repo.git
+
+- ssh 协议
+  - URL: ssh://[USER@]host[:port]/path/to/repo.git  
+  - URL: ssh://[USER@]host[:port]/~USERNAME/path/to/repo.git
+  - URL2: [USER@]host/path/to/.git
+
+- http/https 协议
+  - 1.6.5- ： 哑 http 协议
+  - 1.6.6+ : 智能 http 协议
+    - 读/写/认证
+  
+  - URL：http://host/path/to/repo.git
+
+### 引用远程版本库
+
+> 远程版本库：定义在配置文件中一个实体；
+
+[remote "BRANCH_NAME"]
+
+由两部分组成
+
+1. 第一部分：URL
+2. 第二部分：refspec, 定义一个版本库与其他版本库的名字空间的映射关系
+
+- 语法格式：`+source:destination`
+  - source: 源引用(本地分支)
+    - refs/heads/NAME(本地分支)
+    - refs/remote/NAME(远程跟踪分支)
+  - destination: 目标引用(远程分支)
+
+``` .config
+写入信息
+[remote "Publish"]
+url = http://HOST/pub/repo_name.git 远程分支地址
+push = +refs/heads/*:refs/remotes/origin/*    refs/heads/目录下的每一个分支(*)
+
+显示信息
+remote.publish.url
+remote.publish.
+
+
+实例配置
+$ git config -l
+$ man git-remote 管理跟踪远程仓库
+
+$ git remote 列出远程分支
+  origin
+$ git branch -r 列出远程仓库 r:repo
+  origin/master
+$ git remote add linux-nfs git://linux-nfs.org/pub/linux/nfs-2.6.git 添加远程分支
+$ git remote
+  linux-nfs
+  origin
+
+$ git fetch 建立映射关系
+
+$ git branch -r
+  origin/master
+  linux-nfs/master
+
+$ git checkout -b nfs linux-nfs/master
+
+```
+
+### 服务器
+
+- git-daemon
+
+``` shell
+# yum -y install git-daemon
+# rpm -ql git-daemon
+
+# systemctl start git.socket
+# vim /user/lib/systemd/system/git@.service
+# systemtl start git.socket
+# ss -tnl
+# cd /var/lib/git/
+# git init --bare myproject.git  裸仓库
+# ls myproject.git
+
+# git clone git://172.16.1.100/myproject.git
+# cd myproject
+# ls -a
+. .. .git
+
+# git config-l
+
+
+```
+
+
+
+
+``` shell
+# yum -y install httpd
+http协议必须支持三种模块路径别名、环境变量设定、CGI机制
+
+# http -M | grep -Ei "\<(alias|cgi|env)"
+
+# mkdir /var/www/git
+
+# chown -R apache:apache /var/www/git
+
+# cd /var/www/git/
+
+# git init --bare testproject.git
+
+# ls
+
+# chown -R apache:apache /var/www/git
+
+# vim /etc/httpd/conf/httpd.conf
+ #DocumentRoot
+
+# man git-http-backend
+# rpm -ql git | grep -i git-http-backend
+
+
+# vim /etc/httpd/conf.d/git.conf
+<virtualHost *:80>
+  ServerName git.wovert.com
+  SetEnv GIT_PROJECT_ROOT /var/www/git # git 根目录
+  SetEnv GIT_HTTP_EXPORT_ALL
+  ScriptAlias /git/ /usr/libexec/git-core/git-http-backend/
+
+  <Directory "/usr/libexec/git-core/">
+    Options ExecCGI Indexes
+    Require all granted
+  </Directory>
+
+  <LocationMatch "^/git/.*/git-receive-pack$">
+    AuthType Basic
+    AuthName "Private Git Repo"
+    AuthUserFile /etc/httpd/conf/.htpasswd
+    Require valid-user
+  </LocationMatch>
+  
+</virtualHost>
+
+# httpd -t
+
+# systemctl start httpd.serivce
+
+# ss -tnl
+
+# ls
+
+# git clone http://172.18.100.10/git/testproject.git
+
+# cd testproject
+
+# tree .git/
+
+# vim REDME
+  new line
+
+# git add README
+
+# git commit -m "v0.1"
+
+# git push origin master   origin:远程，master:本地
+ 没有权限
+
+# git config -l
+
+配置认证配置之后可以 push
+
+# git config http.receivepack true
+
+# git config -l
+
+# git push origin master
+
+# cd /etc/httpd/conf.d/
+
+# ls
+
+# vim git.conf
+  <LocationMatch "^/git/.*/git-receive-pack$">
+    AuthType Basic
+    AuthName "Private Git Repo"
+    AuthUserFile /etc/httpd/conf/.htpasswd
+    Require valid-user
+  </LocationMatch>
+
+# httpd -t
+
+# systemctl restart httpd.service
+
+# htpasswd -c -m /etc/httpd/conf/.htpasswd tom
+
+# htpasswd -m /etc/httpd/conf/.htpasswd jerry
+
+# rm -rf testproject/
+
+# git clone http://172.16.10.10/git/testproject.git
+
+# ls
+
+# cd testproject
+
+# ls
+
+# git show-branch
+[master] v0.1
+
+# git show-branch -r 远程分支
+
+# vim README
+  new line
+  two line
+
+# git commit -am "v0.2"
+
+# git push origin master
+
+```
+
+github
+
+gitlab gitlab-ce
+
+博客作业：git 服务器配置
+
+1. git-daemon
+2. git-http-backend
 
 ## 基本步骤
 
