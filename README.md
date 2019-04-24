@@ -361,9 +361,9 @@ $ git diff
 
 ### git diff
 
-- 索引与工作目录：`git diff`
+- 索引与工作目录：`git diff` 工作区vs暂存区
 - 工作目录与HEAD(最近一次提交): `git diff HEAD`
-- 索引与HEAD: `git diff --cached`
+- 索引与HEAD: `git diff --cached` 暂存区vs历史区
 - c2 与 c4: `git diff c2 c4`
 
 ```git
@@ -837,7 +837,6 @@ HEAD 指向的版本就是当前版本，因此，Git允许我们在版本的历
 
 要重返未来，用git reflog查看命令历史，以便确定要回到未来的哪个版本。
 
-
 命令git checkout -- readme.txt意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：
 
 一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
@@ -1209,11 +1208,6 @@ $ cat .gitconfig
 
 - git commit --amend -m "中文说明"
 
-## 删除文件
-
-- 工作目录中删除文件
-- git status
-
 ### 恢复文件
 
 - rm -rf 文件名
@@ -1249,9 +1243,19 @@ $ git add test.py
 $ vim test.py
   print('test~')
 $ git status
+
+把暂存区的某一个文件删除
+
 $ git rm test.py 失败
 $ git rm -f test.py 暂存区与工作目录同时删除
-$ git rm --cached test.py 仅删除暂存区域的文件
+$ git rm --cached test.py 仅删除暂存区域的文件(把暂存区的某一文件撤回到工作区)
+$ git rm --cached . -r 删除暂存区中所有提交的
+如果删除过程中，发现从暂存区删除的文件，在工作区已经被修改，只有加上 -f 才能强制从暂存区把内容删除掉
+
+提交到暂存区一份，把工作区内容改了，但是改的东西不好，想把暂存区上次提交的内容撤销到工作区（覆盖工作区新写的内容）
+$ git checkout test.txt
+暂存区内容没有消失，只是把工作区最新修改的信息给覆盖了，让工作区和暂存区保持一致
+
 $ git status
 
 // dev 分支上修改文件并切换分支（修改内容不影响当前分支）
